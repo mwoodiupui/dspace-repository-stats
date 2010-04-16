@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+       http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+       version="2.4">
+
+       <display-name>DSpace Repository Statistics</display-name>
+ 
+       <!-- 
+   	  Listener to initialize DSpace configuration and clean up the application
+ 	 -->
+       <listener>
+    	 <listener-class>
+           org.dspace.app.util.DSpaceContextListener
+     	 </listener-class>
+       </listener>
+  
+       <!--  Servlets -->
+       <servlet>
+	 <servlet-name>repository</servlet-name>
+	 <servlet-class>edu.iupui.ulib.dspace.RepositoryStatistics</servlet-class>
+       </servlet>
+
+       <!-- Servlet mappings -->
+       <servlet-mapping>
+         <servlet-name>repository</servlet-name>
+         <url-pattern>/</url-pattern>
+       </servlet-mapping>
+
+</web-app>
