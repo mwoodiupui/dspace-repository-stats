@@ -1,8 +1,12 @@
-/* RepositoryStatistics -- expose simple measures of repository size as a web document
- * Copyright 2009 Indiana University
- * Mark H. Wood, IUPUI University Library, 30-Nov-2009
+/**
+ * <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+ * <html><head>
+ * <title>301 Moved Permanently</title>
+ * </head><body>
+ * <h1>Moved Permanently</h1>
+ * <p>The document has moved <a href="https://svn.duraspace.org/dspace/licenses/LICENSE_HEADER">here</a>.</p>
+ * </body></html>
  */
-
 package edu.iupui.ulib.dspace;
 
 import java.io.IOException;
