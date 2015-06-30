@@ -11,32 +11,11 @@
     <packaging>war</packaging>
     <name>DSpace Content Statistics</name>
     <description>Expose some simple statistics about the assets themselves.  This is orthogonal to statistics on the use of the assets.</description>
-
-<!--
-    <parent>
-        <artifactId>modules</artifactId>
-        <groupId>org.dspace</groupId>
-        <version>5.2</version>
-    </parent>
--->
+    <url>https://github.iu.edu/mwood/DSpace-repository-stats</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <developers>
-        <developer>
-            <id>mwood</id>
-            <name>Mark Wood</name>
-            <email>mwood@IUPUI.Edu</email>
-            <organization>IUPUI University Library</organization>
-            <timezone>-5</timezone>
-        </developer>
-    </developers>
-
-    <organization>
-        <name>Indiana University</name>
-    </organization>
 
     <dependencies>
         <dependency>
@@ -51,5 +30,37 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
+
+    <developers>
+        <developer>
+            <id>mwood</id>
+            <name>Mark Wood</name>
+            <email>mwood@IUPUI.Edu</email>
+            <url>https://sites.google.com/site/mhwoodmypage/</url>
+            <organization>IUPUI University Library</organization>
+            <organizationUrl>https://www.ulib.iupui.edu/</organizationUrl>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>Indiana University</name>
+        <url>http://www.iu.edu/</url>
+    </organization>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.iu.edu/mwood/DSpace-repository-stats/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>https://github.iu.edu/mwood/DSpace-repository-stats.git</connection>
+        <developerConnection>git@github.iu.edu:mwood/DSpace-repository-stats.git</developerConnection>
+        <url>https://github.iu.edu/mwood/DSpace-repository-stats</url>
+    </scm>
 
 </project>
