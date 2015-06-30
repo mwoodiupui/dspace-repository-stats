@@ -22,7 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.storage.rdbms.*;
 
@@ -40,8 +43,10 @@ public class RepositoryStatistics extends HttpServlet
 {
 	private static final TimeZone utcZone = TimeZone.getTimeZone("UTC");
 
-protected static final Logger log
-    = Logger.getLogger(RepositoryStatistics.class);
+    protected static final Logger log
+        = Logger.getLogger(RepositoryStatistics.class);
+
+    private static int DC_TITLE_FIELD = -1;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -75,6 +80,10 @@ protected static final Logger log
         try
         {
             dsContext = new Context();
+
+            if (DC_TITLE_FIELD < 0)
+                DC_TITLE_FIELD = MetadataField.findByElement(dsContext,
+                        MetadataSchema.DC_SCHEMA_ID, "title", null).getFieldID();
             
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(community_id) AS communities FROM community;");
@@ -91,7 +100,7 @@ protected static final Logger log
                         row.getLongColumn("collections"));
             
             row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(item_id) AS items FROM item WHERE NOT withdrawn;");
+                    "SELECT count(item_id) AS items FROM item WHERE NOT withdrawn;"); // TODO Oracle-ize
             if (null != row)
                 responseWriter.printf(
                         " <statistic name='items'>%d</statistic>",
@@ -101,14 +110,19 @@ protected static final Logger log
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(bitstream_id) AS bitstreams," +
                             " sum(size_bytes) AS totalBytes" +
-                            " FROM bitstream" +
+                            " FROM bitstream bs" +
                     		"  JOIN bundle2bitstream USING(bitstream_id)" +
                     		"  JOIN bundle USING(bundle_id)" +
                     		"  JOIN item2bundle USING(bundle_id)" +
                     		"  JOIN item USING(item_id)" +
-                    		" WHERE NOT withdrawn" +
-                    		"  AND NOT deleted" +
-                    		"  AND bundle.name = 'ORIGINAL';");
+                            "  JOIN metadatavalue md ON (" +
+                            "   md.resource_id = bs.bitstream_id" +
+                            "   AND md.resource_type_id = ?" +
+                            "   AND md.metadata_field_id = ?)" +
+                    		" WHERE NOT withdrawn" + // TODO Oracle-ize
+                    		"  AND NOT deleted" + // TODO Oracle-ize
+                            "  AND md.text_value = 'ORIGINAL'" +
+                            ";", Constants.BITSTREAM, DC_TITLE_FIELD);
             if (null != row)
             {
                 log.debug("Writing count");
