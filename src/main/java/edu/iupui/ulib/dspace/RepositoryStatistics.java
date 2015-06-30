@@ -122,7 +122,7 @@ public class RepositoryStatistics extends HttpServlet
                     		" WHERE NOT withdrawn" + // TODO Oracle-ize
                     		"  AND NOT deleted" + // TODO Oracle-ize
                             "  AND md.text_value = 'ORIGINAL'" +
-                            ";", Constants.BITSTREAM, DC_TITLE_FIELD);
+                            ";", Constants.BUNDLE, DC_TITLE_FIELD);
             if (null != row)
             {
                 log.debug("Writing count");
@@ -130,7 +130,7 @@ public class RepositoryStatistics extends HttpServlet
                         row.getLongColumn("bitstreams"));
                 log.debug("Writing total size");
                 responseWriter.printf(" <statistic name='totalBytes'>%d</statistic>",
-                        row.getLongColumn("totalBytes"));
+                        row.getNumericColumn("totalBytes").toBigInteger());
                 log.debug("Completed writing count, size");
             }
             
@@ -138,23 +138,27 @@ public class RepositoryStatistics extends HttpServlet
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(bitstream_id) AS images," +
                     " sum(size_bytes) AS imageBytes" +
-                    " FROM bitstream" +
-                    " JOIN bitstreamformatregistry USING(bitstream_format_id)" +
-                    " JOIN bundle2bitstream USING(bitstream_id)" +
-                    " JOIN bundle USING(bundle_id)" +
-                    " JOIN item2bundle USING(bundle_id)" +
-                    " JOIN item USING(item_id)" +
-                    " WHERE bundle.name = 'ORIGINAL'" +
-                    "  AND mimetype LIKE 'image/%'" +
-                    "  AND NOT deleted" +
-                    "  AND NOT withdrawn;"
+                    " FROM bitstream bs" +
+                    "  JOIN bitstreamformatregistry USING(bitstream_format_id)" +
+                    "  JOIN bundle2bitstream USING(bitstream_id)" +
+                    "  JOIN bundle USING(bundle_id)" +
+                    "  JOIN item2bundle USING(bundle_id)" +
+                    "  JOIN item USING(item_id)" +
+                    "  JOIN metadatavalue md ON (" +
+                    "   md.resource_id = bs.bitstream_id" +
+                    "   AND md.resource_type_id = ?" +
+                    "   AND md.metadata_field_id = ?)" +
+                    " WHERE mimetype LIKE 'image/%'" +
+                    "  AND NOT deleted" + // TODO Oracle-ize
+                    "  AND NOT withdrawn" + // TODO Oracle-ize
+                    ";", Constants.BUNDLE, DC_TITLE_FIELD
                     );
             if (null != row)
             {
                 responseWriter.printf(" <statistic name='images'>%d</statistic>",
                         row.getLongColumn("images"));
                 responseWriter.printf(" <statistic name='imageBytes'>%d</statistic>",
-                        row.getLongColumn("imageBytes"));
+                        row.getNumericColumn("imageBytes").toBigInteger());
             }
 
             /* TODO workflow items
