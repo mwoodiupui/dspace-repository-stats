@@ -1,18 +1,28 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <inceptionYear>2009</inceptionYear>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.iupui.ulib.dspace</groupId>
     <artifactId>repository-stats</artifactId>
+    <version>5.2</version>
     <packaging>war</packaging>
     <name>DSpace Content Statistics</name>
     <description>Expose some simple statistics about the assets themselves.  This is orthogonal to statistics on the use of the assets.</description>
 
+<!--
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>1.7.2</version>
+        <version>5.2</version>
     </parent>
+-->
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <developers>
         <developer>
@@ -32,12 +42,12 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>1.7.2</version>
+            <version>5.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
