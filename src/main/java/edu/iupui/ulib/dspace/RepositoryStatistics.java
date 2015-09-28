@@ -66,15 +66,9 @@ public class RepositoryStatistics extends HttpServlet
 
         responseWriter.print("<dspace-repository-statistics date='");
         log.debug("Ready to write date");
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-        df.setTimeZone(utcZone);
-        SimpleDateFormat tf = new SimpleDateFormat("HHmmss");
-        tf.setTimeZone(utcZone);
-        Date now = new Date();
-        responseWriter.print(df.format(now));
-        responseWriter.print('T');
-        responseWriter.print(tf.format(now));
-        responseWriter.print("Z'>");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+        responseWriter.print(format.format(new Date()));
+        responseWriter.print("'>");
         log.debug("Wrote the date");
 
         try
