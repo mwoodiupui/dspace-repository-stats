@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>5.2</version>
+            <version>6.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
