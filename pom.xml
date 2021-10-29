@@ -7,7 +7,7 @@
 
     <groupId>edu.iupui.ulib.dspace</groupId>
     <artifactId>repository-stats</artifactId>
-    <version>6.3</version>
+    <version>6.2</version>
     <packaging>war</packaging>
     <name>DSpace Content Statistics</name>
     <description>Expose some simple statistics about the assets themselves.  This is orthogonal to statistics on the use of the assets.</description>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>6.3</version>
+            <version>6.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
