@@ -1,42 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<web-app version="2.5"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+		http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-    <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-    <html><head>
-    <title>301 Moved Permanently</title>
-    </head><body>
-    <h1>Moved Permanently</h1>
-    <p>The document has moved <a href="https://svn.duraspace.org/dspace/licenses/LICENSE_HEADER">here</a>.</p>
-    </body></html>
+    <display-name>DSpace Repository Statistics</display-name>
 
--->
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-       http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-       version="2.4">
+    <!--
+	Listener to initialize DSpace configuration and clean up the application
+      -->
+    <listener>
+        <description>Starts the DSpace kernel, reads configuration.</description>
+        <listener-class>org.dspace.app.util.DSpaceContextListener</listener-class>
+    </listener>
 
-       <display-name>DSpace Repository Statistics</display-name>
- 
-       <!-- 
-   	  Listener to initialize DSpace configuration and clean up the application
- 	 -->
-       <listener>
-    	 <listener-class>
-           org.dspace.app.util.DSpaceContextListener
-     	 </listener-class>
-       </listener>
-  
-       <!--  Servlets -->
-       <servlet>
-	 <servlet-name>repository</servlet-name>
-	 <servlet-class>edu.iupui.ulib.dspace.RepositoryStatistics</servlet-class>
-       </servlet>
+    <!--  Servlets -->
+    <servlet>
+        <servlet-name>repository</servlet-name>
+	     <servlet-class>edu.iupui.ulib.dspace.RepositoryStatistics</servlet-class>
+        </servlet>
 
-       <!-- Servlet mappings -->
-       <servlet-mapping>
-         <servlet-name>repository</servlet-name>
-         <url-pattern>/</url-pattern>
-       </servlet-mapping>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>repository</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
 
 </web-app>

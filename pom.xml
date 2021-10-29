@@ -1,45 +1,61 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <inceptionYear>2009</inceptionYear>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.iupui.ulib.dspace</groupId>
     <artifactId>repository-stats</artifactId>
+    <version>1.8.1</version>
     <packaging>war</packaging>
     <name>DSpace Content Statistics</name>
     <description>Expose some simple statistics about the assets themselves.  This is orthogonal to statistics on the use of the assets.</description>
+    <url>https://github.iu.edu/mwood/DSpace-repository-stats</url>
 
-    <parent>
-        <artifactId>modules</artifactId>
-        <groupId>org.dspace</groupId>
-        <version>1.7.2</version>
-    </parent>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <developers>
         <developer>
             <id>mwood</id>
             <name>Mark Wood</name>
             <email>mwood@IUPUI.Edu</email>
+            <url>https://sites.google.com/site/mhwoodmypage/</url>
             <organization>IUPUI University Library</organization>
+            <organizationUrl>https://www.ulib.iupui.edu/</organizationUrl>
             <timezone>-5</timezone>
         </developer>
     </developers>
 
     <organization>
         <name>Indiana University</name>
+        <url>http://www.iu.edu/</url>
     </organization>
 
     <dependencies>
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>1.7.2</version>
+            <version>1.8.1</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.iu.edu/mwood/DSpace-repository-stats/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>https://github.iu.edu/mwood/DSpace-repository-stats.git</connection>
+        <developerConnection>git@github.iu.edu:mwood/DSpace-repository-stats.git</developerConnection>
+        <url>https://github.iu.edu/mwood/DSpace-repository-stats</url>
+    </scm>
 
 </project>

@@ -1,12 +1,9 @@
-/**
- * <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
- * <html><head>
- * <title>301 Moved Permanently</title>
- * </head><body>
- * <h1>Moved Permanently</h1>
- * <p>The document has moved <a href="https://svn.duraspace.org/dspace/licenses/LICENSE_HEADER">here</a>.</p>
- * </body></html>
+/*
+ * RepositoryStatistics -- expose simple measures of repository size as a web document.
+ * Copyright 2009-2021 Indiana University
+ * Mark H. Wood, IUPUI University Library, 30-Nov-2009
  */
+
 package edu.iupui.ulib.dspace;
 
 import java.io.IOException;
@@ -33,7 +30,7 @@ import org.dspace.storage.rdbms.*;
  * <p><em>NOTE WELL:</em>  we go straight to the database for much of this
  * information.  This could break if there are significant changes in the
  * schema.  The object model doesn't provide these statistics, though.</p>
- * 
+ *
  * @author Mark H. Wood
  */
 public class RepositoryStatistics extends HttpServlet
@@ -61,35 +58,29 @@ protected static final Logger log
 
         responseWriter.print("<dspace-repository-statistics date='");
         log.debug("Ready to write date");
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-        df.setTimeZone(utcZone);
-        SimpleDateFormat tf = new SimpleDateFormat("HHmmss");
-        tf.setTimeZone(utcZone);
-        Date now = new Date();
-        responseWriter.print(df.format(now));
-        responseWriter.print('T');
-        responseWriter.print(tf.format(now));
-        responseWriter.print("Z'>");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+        responseWriter.print(format.format(new Date()));
+        responseWriter.print("'>");
         log.debug("Wrote the date");
 
         try
         {
             dsContext = new Context();
-            
+
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(community_id) AS communities FROM community;");
             if (null != row)
                 responseWriter.printf(
                         " <statistic name='communities'>%d</statistic>",
                         row.getLongColumn("communities"));
-            
+
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(collection_id) AS collections FROM collection;");
             if (null != row)
                 responseWriter.printf(
                         " <statistic name='collections'>%d</statistic>",
                         row.getLongColumn("collections"));
-            
+
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(item_id) AS items FROM item WHERE NOT withdrawn;");
             if (null != row)
@@ -119,7 +110,7 @@ protected static final Logger log
                         row.getLongColumn("totalBytes"));
                 log.debug("Completed writing count, size");
             }
-            
+
             log.debug("Counting, summing image bitstreams");
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(bitstream_id) AS images," +
@@ -153,7 +144,7 @@ protected static final Logger log
         }
         catch (SQLException e)
         {
-            log.debug("caught SQLException");
+            log.error("caught SQLException", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     e.getMessage());
         }
