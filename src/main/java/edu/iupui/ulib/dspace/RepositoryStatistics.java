@@ -120,6 +120,7 @@ public class RepositoryStatistics
             element.setAttribute("name", "items");
             element.setTextContent(String.valueOf(itemService.countTotal(dsContext)
                             - itemService.countWithdrawnItems(dsContext)));
+            root.appendChild(element);
 
             BitstreamCounts row;
 
