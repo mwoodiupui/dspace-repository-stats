@@ -20,14 +20,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
 
 import org.apache.log4j.Logger;
-import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
-
-import org.dspace.core.Constants;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.Context;
-import org.dspace.storage.rdbms.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Expose some simple measures of the repository's size as an XML document via a
@@ -39,7 +49,8 @@ import org.dspace.storage.rdbms.*;
  * 
  * @author Mark H. Wood
  */
-public class RepositoryStatistics extends HttpServlet
+public class RepositoryStatistics
+        extends HttpServlet
 {
 	private static final TimeZone utcZone = TimeZone.getTimeZone("UTC");
 
@@ -54,126 +65,148 @@ public class RepositoryStatistics extends HttpServlet
     {
         log.debug("Entering RepositoryStatistics.doGet");
         Context dsContext;
-        TableRow row;
+        DocumentBuilder documentBuilder;
+        Transformer transformer;
+
+        try {
+            documentBuilder = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder();
+            transformer = TransformerFactory.newInstance()
+                    .newTransformer();
+        } catch (ParserConfigurationException
+                | TransformerFactoryConfigurationError
+                | TransformerConfigurationException ex) {
+            throw new ServletException("Cannot build response document", ex);
+        }
 
         // Response header
         resp.setContentType("text/xml; encoding='UTF-8'");
         resp.setStatus(HttpServletResponse.SC_OK);
 
         // Response body
-        PrintWriter responseWriter = resp.getWriter();
-        responseWriter.print("<?xml version='1.0' encoding='UTF-8'?>");
+        Document document = documentBuilder.newDocument();
 
-        responseWriter.print("<dspace-repository-statistics date='");
-        log.debug("Ready to write date");
+        Element root = document.createElement("dspace-repository-statistics");
+        document.appendChild(root);
+
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-        responseWriter.print(format.format(new Date()));
-        responseWriter.print("'>");
-        log.debug("Wrote the date");
+        root.setAttribute("date", format.format(new Date()));
 
         try
         {
             dsContext = new Context();
+            ContentServiceFactory contentServiceFactory
+                    = ContentServiceFactory.getInstance();
+            Element element;
 
+            MetadataFieldService metadataFieldService
+                    = contentServiceFactory.getMetadataFieldService();
             if (DC_TITLE_FIELD < 0)
-                DC_TITLE_FIELD = MetadataField.findByElement(dsContext,
-                        MetadataSchema.DC_SCHEMA_ID, "title", null).getFieldID();
-            
-            row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(community_id) AS communities FROM community;");
-            if (null != row)
-                responseWriter.printf(
-                        " <statistic name='communities'>%d</statistic>",
-                        row.getLongColumn("communities"));
-            
-            row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(collection_id) AS collections FROM collection;");
-            if (null != row)
-                responseWriter.printf(
-                        " <statistic name='collections'>%d</statistic>",
-                        row.getLongColumn("collections"));
-            
-            row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(item_id) AS items FROM item WHERE NOT withdrawn;"); // TODO Oracle-ize
-            if (null != row)
-                responseWriter.printf(
-                        " <statistic name='items'>%d</statistic>",
-                        row.getLongColumn("items"));
+                DC_TITLE_FIELD = metadataFieldService.findByElement(dsContext,
+                        MetadataSchema.DC_SCHEMA, "title", null).getID();
+
+            element = document.createElement("statistic");
+            element.setAttribute("name", "communities");
+            element.setTextContent(String.valueOf(contentServiceFactory.getCommunityService().countTotal(dsContext)));
+            root.appendChild(element);
+
+            element = document.createElement("statistic");
+            element.setAttribute("name", "collections");
+            element.setTextContent(String.valueOf(contentServiceFactory.getCollectionService().countTotal(dsContext)));
+            root.appendChild(element);
+
+            ItemService itemService = contentServiceFactory.getItemService();
+            element = document.createElement("statistic");
+            element.setAttribute("name", "items");
+            element.setTextContent(String.valueOf(itemService.countTotal(dsContext)
+                            - itemService.countWithdrawnItems(dsContext)));
+
+            BitstreamCounts row;
 
             log.debug("Counting, summing bitstreams");
-            row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(bitstream_id) AS bitstreams," +
-                            " sum(size_bytes) AS totalBytes" +
-                            " FROM bitstream bs" +
-                    		"  JOIN bundle2bitstream USING(bitstream_id)" +
-                    		"  JOIN bundle USING(bundle_id)" +
-                    		"  JOIN item2bundle USING(bundle_id)" +
-                    		"  JOIN item USING(item_id)" +
-                            "  JOIN metadatavalue md ON (" +
-                            "   md.resource_id = bs.bitstream_id" +
-                            "   AND md.resource_type_id = ?" +
-                            "   AND md.metadata_field_id = ?)" +
-                    		" WHERE NOT withdrawn" + // TODO Oracle-ize
-                    		"  AND NOT deleted" + // TODO Oracle-ize
-                            "  AND md.text_value = 'ORIGINAL'" +
-                            ";", Constants.BUNDLE, DC_TITLE_FIELD);
+            row = (BitstreamCounts) new StatisticsDAOImpl().doHQLQuery(dsContext,
+                    "SELECT new edu.iupui.ulib.dspace.BitstreamCounts(count(*), sum(bs.sizeBytes))" +
+                            " FROM Bundle bnd" +
+                            "  JOIN bnd.items i" +
+                            "  JOIN bnd.bitstreams bs" +
+                            "  JOIN bnd.metadata md" +
+                            "  JOIN md.metadataField mf" +
+                            "   WITH mf.element = 'title'" +
+                            " WHERE i.withdrawn is false" +
+                            "  AND bs.deleted is false" +
+                            "  AND md.value = 'ORIGINAL'"
+            );
             if (null != row)
             {
                 log.debug("Writing count");
-                responseWriter.printf(" <statistic name='bitstreams'>%d</statistic>",
-                        row.getLongColumn("bitstreams"));
+                Object count = row;
+                log.debug("bitstream count is " + count.toString());
+                element = document.createElement("statistic");
+                element.setAttribute("name", "bitstreams");
+                element.setTextContent(String.valueOf(row.getCount()));
+                root.appendChild(element);
+
                 log.debug("Writing total size");
-                responseWriter.printf(" <statistic name='totalBytes'>%d</statistic>",
-                        row.getNumericColumn("totalBytes").toBigInteger());
+                Object size = row;
+                log.debug("bitstream size is " + size.toString());
+                element = document.createElement("statistic");
+                element.setAttribute("name", "totalBytes");
+                element.setTextContent(String.valueOf(row.getTotalSize()));
+                root.appendChild(element);
                 log.debug("Completed writing count, size");
             }
             
             log.debug("Counting, summing image bitstreams");
-            row = DatabaseManager.querySingle(dsContext,
-                    "SELECT count(bitstream_id) AS images," +
-                    " sum(size_bytes) AS imageBytes" +
-                    " FROM bitstream bs" +
-                    "  JOIN bitstreamformatregistry USING(bitstream_format_id)" +
-                    "  JOIN bundle2bitstream USING(bitstream_id)" +
-                    "  JOIN bundle USING(bundle_id)" +
-                    "  JOIN item2bundle USING(bundle_id)" +
-                    "  JOIN item USING(item_id)" +
-                    "  JOIN metadatavalue md ON (" +
-                    "   md.resource_id = bs.bitstream_id" +
-                    "   AND md.resource_type_id = ?" +
-                    "   AND md.metadata_field_id = ?)" +
-                    " WHERE mimetype LIKE 'image/%'" +
-                    "  AND NOT deleted" + // TODO Oracle-ize
-                    "  AND NOT withdrawn" + // TODO Oracle-ize
-                    ";", Constants.BUNDLE, DC_TITLE_FIELD
+            row = (BitstreamCounts) new StatisticsDAOImpl().doHQLQuery(dsContext,
+                    "SELECT new edu.iupui.ulib.dspace.BitstreamCounts(count(*), sum(bs.sizeBytes))" +
+                    " FROM Bundle bnd" +
+                    "  JOIN bnd.items i" +
+                    "  JOIN bnd.bitstreams bs" +
+                    "  JOIN bs.bitstreamFormat bsf" +
+                    " WHERE i.withdrawn IS false" +
+                    "  AND bs.deleted IS false" +
+                    "  AND bsf.mimetype LIKE 'image/%'"
                     );
             if (null != row)
             {
-                responseWriter.printf(" <statistic name='images'>%d</statistic>",
-                        row.getLongColumn("images"));
-                responseWriter.printf(" <statistic name='imageBytes'>%d</statistic>",
-                        row.getNumericColumn("imageBytes").toBigInteger());
+                element = document.createElement("statistic");
+                element.setAttribute("name", "images");
+                element.setTextContent(String.valueOf(row.getCount()));
+                root.appendChild(element);
+
+                element = document.createElement("statistic");
+                element.setAttribute("name", "imageBytes");
+                element.setTextContent(String.valueOf(row.getTotalSize()));
+                root.appendChild(element);
             }
 
             /* TODO workflow items
             row = DatabaseManager.querySingle(dsContext,
                     "SELECT count(community_id) AS communities FROM community");
             if (null != row)
-                responseWriter.printf(" <statistic name='communities'>%d</statistic>",
-                        row.getLongColumn("column_id"));
+            {
+                element = document.createElement("statistic");
+                element.setAttribute("name", "communities");
+                element.setTextContent(String.valueOf(SOMETHING);
+                root.appendChild(element);
+            }
              */
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             log.debug("caught SQLException");
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     e.getMessage());
         }
 
-        responseWriter.print("</dspace-repository-statistics>");
+        PrintWriter responseWriter = resp.getWriter();
+        try {
+            transformer.transform(new DOMSource(document),
+                    new javax.xml.transform.stream.StreamResult(responseWriter));
+        } catch (TransformerException ex) {
+            throw new ServletException("Cannot format or send document.", ex);
+        }
         log.debug("Finished report");
     }
 
     /** HttpServlet implements Serializable for some strange reason */
-    private static final long serialVersionUID = -98582768658080267L;
+    public static final long SerialVersionUID = 060200l;
 }

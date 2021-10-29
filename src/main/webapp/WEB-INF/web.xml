@@ -8,9 +8,22 @@
     <display-name>DSpace Repository Statistics</display-name>
     <description>Exposes simple object counts as XML.</description>
 
+    <context-param>
+        <description>Spring configuration files.</description>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/spring/*.xml</param-value>
+    </context-param>
+
     <listener>
-        <description>Starts the DSpace kernel, reads configuration.</description>
+        <description>Reads configuration.</description>
         <listener-class>org.dspace.app.util.DSpaceContextListener</listener-class>
+    </listener>
+
+    <listener>
+        <description>Initializes the DSpace kernel.</description>
+        <listener-class>
+            org.dspace.servicemanager.servlet.DSpaceKernelServletContextListener
+        </listener-class>
     </listener>
 
     <servlet>
