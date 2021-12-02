@@ -11,33 +11,30 @@ package edu.iupui.ulib.dspace;
  *
  * @author Mark H. Wood <mwood@iupui.edu>
  */
-public class BitstreamCounts
-{
+public class BitstreamCounts {
     private final long count;
     private final long totalSize;
 
-    public BitstreamCounts(Long count, Long totalSize)
-    {
+    public BitstreamCounts(Long count, Long totalSize) {
         this.count = count;
-        if (null == totalSize)
+        if (null == totalSize) {
             this.totalSize = 0;
-        else
+        } else {
             this.totalSize = totalSize;
+        }
     }
 
     /**
      * @return the count.
      */
-    public long getCount()
-    {
+    public long getCount() {
         return count;
     }
 
     /**
      * @return the aggregate size of all Bitstream.
      */
-    public long getTotalSize()
-    {
+    public long getTotalSize() {
         return totalSize;
     }
 }

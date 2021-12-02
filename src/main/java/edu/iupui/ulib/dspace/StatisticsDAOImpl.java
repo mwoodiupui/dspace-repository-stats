@@ -17,8 +17,7 @@ import org.hibernate.Query;
  * @author Mark H. Wood <mwood@iupui.edu>
  */
 public class StatisticsDAOImpl
-        extends AbstractHibernateDSODAO<Bitstream>
-{
+        extends AbstractHibernateDSODAO<Bitstream> {
     /**
      * Execute {@code hql} and return its first result.
      * @param ctx DSpace context.
@@ -27,8 +26,7 @@ public class StatisticsDAOImpl
      * @throws SQLException passed through.
      */
     Object doHQLQuery(Context ctx, String hql)
-            throws SQLException
-    {
+            throws SQLException {
         Query query = createQuery(ctx, hql);
         return query.list().get(0);
     }
