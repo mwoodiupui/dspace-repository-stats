@@ -7,10 +7,11 @@
 package edu.iupui.ulib.dspace;
 
 import java.sql.SQLException;
+import javax.persistence.Query;
+
 import org.dspace.content.Bitstream;
 import org.dspace.core.AbstractHibernateDSODAO;
 import org.dspace.core.Context;
-import org.hibernate.Query;
 
 /**
  * Do arbitrary HQL queries for content statistics.
@@ -28,6 +29,6 @@ public class StatisticsDAOImpl
     Object doHQLQuery(Context ctx, String hql)
             throws SQLException {
         Query query = createQuery(ctx, hql);
-        return query.list().get(0);
+        return query.getResultList().get(0);
     }
 }

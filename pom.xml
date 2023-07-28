@@ -7,28 +7,31 @@
 
     <groupId>edu.iupui.ulib.dspace</groupId>
     <artifactId>repository-stats</artifactId>
-    <version>6.2</version>
+    <version>7.6</version>
     <packaging>war</packaging>
     <name>DSpace Content Statistics</name>
-    <description>Expose some simple statistics about the assets themselves.  This is orthogonal to statistics on the use of the assets.</description>
+    <description>
+      Expose some simple statistics about the assets themselves.
+      This is orthogonal to statistics on the use of the assets.
+    </description>
     <url>https://github.iu.edu/mwood/DSpace-repository-stats</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>6.2</version>
+            <version>7.6</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -37,9 +40,9 @@
             <version>4.2.21.Final</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.20.0</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>

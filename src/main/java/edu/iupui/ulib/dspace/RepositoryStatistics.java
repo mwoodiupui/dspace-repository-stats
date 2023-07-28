@@ -27,8 +27,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 
-import org.apache.log4j.Logger;
-import org.dspace.content.MetadataSchema;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
@@ -43,15 +43,14 @@ import org.w3c.dom.Element;
  * <p><em>NOTE WELL:</em>  we go straight to the database for much of this
  * information.  This could break if there are significant changes in the
  * schema.  The object model doesn't provide these statistics, though.</p>
- * 
+ *
  * @author Mark H. Wood
  */
 public class RepositoryStatistics
         extends HttpServlet {
-    private static final TimeZone utcZone = TimeZone.getTimeZone("UTC");
+    private static final String DC_SCHEMA="dc";
 
-    protected static final Logger log
-        = Logger.getLogger(RepositoryStatistics.class);
+    protected static final Logger log = LogManager.getLogger();
 
     private static final String E_STATISTIC = "statistic";
 
@@ -102,7 +101,7 @@ public class RepositoryStatistics
                     = contentServiceFactory.getMetadataFieldService();
             if (DC_TITLE_FIELD < 0) {
                 DC_TITLE_FIELD = metadataFieldService.findByElement(dsContext,
-                        MetadataSchema.DC_SCHEMA, "title", null).getID();
+                        DC_SCHEMA, "title", null).getID();
             }
 
             element = document.createElement(E_STATISTIC);
@@ -209,5 +208,5 @@ public class RepositoryStatistics
     }
 
     /** HttpServlet implements Serializable for some strange reason */
-    public static final long SerialVersionUID = 060200l;
+    public static final long SerialVersionUID = 070600l;
 }
